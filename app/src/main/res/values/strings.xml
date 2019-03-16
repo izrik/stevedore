@@ -72,4 +72,14 @@
     <string name="pref_ringtone_silent">Silent</string>
 
     <string name="pref_title_vibrate">Vibrate</string>
+
+    <string name="transfer_service_started">Transfer service started</string>
+    <string name="transfer_service_stopped">Transfer service stopped</string>
+    <string name="transfer_service_label">This is the Transfer Service</string>
+    <string name="transfer_service_connected">Transfer service connected</string>
+    <string name="transfer_service_disconnected">Transfer service disconnected</string>
+
+    <string name="channel_name">channel_name</string>
+    <string name="channel_description">channel_description</string>
+
 </resources>
