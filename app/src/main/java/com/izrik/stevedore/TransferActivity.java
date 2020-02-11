@@ -23,6 +23,7 @@ import android.widget.Toast;
 public class TransferActivity extends AppCompatActivity {
 
     private static final String CHANNEL_ID = "Transfer_Notification_Channel";
+    public static Intent serviceIntent = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,13 +34,26 @@ public class TransferActivity extends AppCompatActivity {
         startServiceButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startService(
-                        new Intent(
-                                TransferActivity.this,
-                                TransferService.class));
+                if (serviceIntent == null) {
+                    serviceIntent = new Intent(
+                            TransferActivity.this,
+                            TransferService.class);
+                }
+                startService(serviceIntent);
 
             }
         });
+
+        Button stopServiceButton = (Button)findViewById(R.id.stop_service);
+        stopServiceButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (serviceIntent != null) {
+                    stopService(serviceIntent);
+                }
+            }
+        });
+
         createNotificationChannel();
         Button createNotificationButton = (Button)findViewById(R.id.create_notification);
         createNotificationButton.setOnClickListener(new View.OnClickListener() {
