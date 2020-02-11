@@ -77,6 +77,16 @@ public class TransferActivity extends AppCompatActivity {
                 nmc.notify(1337, builder.build());
             }
         });
+
+        Button settingsButton = (Button)findViewById(R.id.settings);
+        settingsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(TransferActivity.this, SettingsActivity.class);
+//                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(intent);
+            }
+        });
     }
 
     private void createNotificationChannel() {
