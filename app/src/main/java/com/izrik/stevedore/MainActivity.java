@@ -1,6 +1,5 @@
 package com.izrik.stevedore;
 
-import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -10,7 +9,6 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Build;
 import android.os.IBinder;
-import android.renderscript.ScriptGroup;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -20,7 +18,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
-public class TransferActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity {
 
     private static final String CHANNEL_ID = "Transfer_Notification_Channel";
     public static Intent serviceIntent = null;
@@ -28,7 +26,7 @@ public class TransferActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_transfer);
+        setContentView(R.layout.activity_main);
 
         Button startServiceButton = (Button)findViewById(R.id.start_service);
         startServiceButton.setOnClickListener(new View.OnClickListener() {
@@ -36,7 +34,7 @@ public class TransferActivity extends AppCompatActivity {
             public void onClick(View view) {
                 if (serviceIntent == null) {
                     serviceIntent = new Intent(
-                            TransferActivity.this,
+                            MainActivity.this,
                             TransferService.class);
                 }
                 startService(serviceIntent);
@@ -60,12 +58,12 @@ public class TransferActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                Intent intent = new Intent(TransferActivity.this, NotifiedActivity.class);
+                Intent intent = new Intent(MainActivity.this, NotifiedActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                PendingIntent pendingIntent = PendingIntent.getActivity(TransferActivity.this, 0, intent, 0);
+                PendingIntent pendingIntent = PendingIntent.getActivity(MainActivity.this, 0, intent, 0);
 
                 NotificationCompat.Builder builder =
-                        new NotificationCompat.Builder(TransferActivity.this, CHANNEL_ID)
+                        new NotificationCompat.Builder(MainActivity.this, CHANNEL_ID)
                         .setSmallIcon(R.drawable.ic_stat_sample)
                         .setContentTitle("This is the notification title")
                         .setContentText("This is the notification text")
@@ -73,7 +71,7 @@ public class TransferActivity extends AppCompatActivity {
                         .setContentIntent(pendingIntent)
                         .setAutoCancel(true);
 
-                NotificationManagerCompat nmc = NotificationManagerCompat.from(TransferActivity.this);
+                NotificationManagerCompat nmc = NotificationManagerCompat.from(MainActivity.this);
                 nmc.notify(1337, builder.build());
             }
         });
@@ -82,7 +80,7 @@ public class TransferActivity extends AppCompatActivity {
         settingsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(TransferActivity.this, SettingsActivity.class);
+                Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
 //                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TASK);
                 startActivity(intent);
             }
@@ -108,18 +106,18 @@ public class TransferActivity extends AppCompatActivity {
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
             boundService= ((TransferService.LocalBinder)iBinder).getService();
-            Toast.makeText(TransferActivity.this, R.string.transfer_service_connected, Toast.LENGTH_SHORT).show();
+            Toast.makeText(MainActivity.this, R.string.transfer_service_connected, Toast.LENGTH_SHORT).show();
         }
 
         @Override
         public void onServiceDisconnected(ComponentName componentName) {
             boundService=null;
-            Toast.makeText(TransferActivity.this, R.string.transfer_service_disconnected, Toast.LENGTH_SHORT).show();
+            Toast.makeText(MainActivity.this, R.string.transfer_service_disconnected, Toast.LENGTH_SHORT).show();
         }
     };
 
     void doBindService() {
-        if (bindService(new Intent(TransferActivity.this, TransferService.class),
+        if (bindService(new Intent(MainActivity.this, TransferService.class),
                 connection, Context.BIND_AUTO_CREATE)) {
             shouldUnbind = true;
         } else {
