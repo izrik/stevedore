@@ -1,22 +1,23 @@
 package com.izrik.stevedore;
 
+import android.Manifest;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.os.Build;
-import android.os.IBinder;
+import android.os.Environment;
+import android.preference.PreferenceManager;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -26,6 +27,11 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        requestPermission(Manifest.permission.READ_EXTERNAL_STORAGE);
+        requestPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        requestPermission(Manifest.permission.INTERNET);
+
         setContentView(R.layout.activity_main);
 
         Button startServiceButton = (Button)findViewById(R.id.start_service);
@@ -36,6 +42,11 @@ public class MainActivity extends AppCompatActivity {
                     serviceIntent = new Intent(
                             MainActivity.this,
                             TransferService.class);
+                    SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
+                    serviceIntent.putExtra("pref_url",
+                            sp.getString("pref_url", ""));
+                    String source = Environment.getExternalStorageDirectory().toString(); // /storage/emulated/0
+                    serviceIntent.putExtra("source", source);
                 }
                 startService(serviceIntent);
 
@@ -87,6 +98,14 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    public void requestPermission(String permission) {
+        if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{permission},
+                    1);
+        }
+    }
+
     private void createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             CharSequence name = getString(R.string.channel_name);
@@ -100,41 +119,4 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private boolean shouldUnbind;
-    private TransferService boundService;
-    private ServiceConnection connection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
-            boundService= ((TransferService.LocalBinder)iBinder).getService();
-            Toast.makeText(MainActivity.this, R.string.transfer_service_connected, Toast.LENGTH_SHORT).show();
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName componentName) {
-            boundService=null;
-            Toast.makeText(MainActivity.this, R.string.transfer_service_disconnected, Toast.LENGTH_SHORT).show();
-        }
-    };
-
-    void doBindService() {
-        if (bindService(new Intent(MainActivity.this, TransferService.class),
-                connection, Context.BIND_AUTO_CREATE)) {
-            shouldUnbind = true;
-        } else {
-            Log.e("MY_APP_TAG", "Error: the requested service doesn't exist, or this client isn't allowed to access it.");
-        }
-    }
-
-    void doUnbindService() {
-        if (shouldUnbind) {
-            unbindService(connection);
-            shouldUnbind = false;
-        }
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        doUnbindService();
-    }
 }
